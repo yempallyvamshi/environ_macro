@@ -1,0 +1,74 @@
+Private Sub Workbook_Open()
+    Dim empID As String
+    Dim ws As Worksheet
+    Dim empWs As Worksheet
+    Dim reporteesWs As Worksheet
+    Dim rng As Range
+    Dim lastRow As Long
+    
+    empID = Environ("Username")
+    
+    If empID <> "" Then
+        Set ws = Sheets("Sheet1") ' Change sheet name here
+        Set ws1 = Sheets("Reporting Check") ' Change sheet name here
+        
+        ' Create a new sheet for the EmpID filter
+        Set empWs = Sheets.Add(After:=Sheets(Sheets.Count))
+        empWs.Name = empID
+        
+        ' Filter and copy data based on column B
+        ws.Range("A1").CurrentRegion.AutoFilter Field:=2, Criteria1:=empID
+        ws.Range("A1").CurrentRegion.SpecialCells(xlCellTypeVisible).Copy Destination:=empWs.Range("A1")
+        ws.ShowAllData ' Clear the filter
+        
+        ' AutoFit columns and rows
+        empWs.Columns.AutoFit
+        empWs.Rows.AutoFit
+        
+        ' Protect the EmpID sheet
+        empWs.Protect Password:="@mahmis@", UserInterfaceOnly:=True
+        
+        ' Create a new sheet for the Reportees filter
+        Set reporteesWs = Sheets.Add(After:=Sheets(Sheets.Count))
+        reporteesWs.Name = "Immediate Reportees"
+        
+        ' Filter and copy data based on column M
+        ws.Range("A1").CurrentRegion.AutoFilter Field:=13, Criteria1:=empID
+        ws.Range("A1").CurrentRegion.SpecialCells(xlCellTypeVisible).Copy Destination:=reporteesWs.Range("A1")
+        ws.ShowAllData ' Clear the filter
+        
+        ' Protect the EmpID sheet
+        reporteesWs.Protect Password:="@mahmis@", UserInterfaceOnly:=True
+        
+        ' Filter and copy data based on column N (Child Reportees)
+        ws.Range("A1").CurrentRegion.AutoFilter Field:=14, Criteria1:=empID
+        ws.Range("A2").CurrentRegion.SpecialCells(xlCellTypeVisible).Copy ' Skip header row
+        
+        ' Find the last row in the Immediate Reportees sheet
+        lastRow = reporteesWs.Cells(reporteesWs.Rows.Count, "A").End(xlUp).Row + 1
+        
+        ' Paste the Child Reportees data below the existing data
+        reporteesWs.Range("A" & lastRow).PasteSpecial xlPasteAll
+        ws.ShowAllData ' Clear the filter
+        
+        ' AutoFit columns and rows
+        reporteesWs.Columns.AutoFit
+        reporteesWs.Rows.AutoFit
+        
+        ' Protect the Reportees sheet
+        reporteesWs.Protect Password:="@mahmis@", UserInterfaceOnly:=True
+        
+        ' Hide the original sheet
+        Application.ScreenUpdating = False
+        ws.Visible = xlSheetVeryHidden
+        ws1.Visible = xlSheetVeryHidden
+        Application.ScreenUpdating = True
+        
+        ' Keep selection on empWs cell A1
+        empWs.Activate
+        empWs.Range("A1").Select
+    Else
+        MsgBox "Unable to retrieve Employee ID.", vbExclamation
+        ThisWorkbook.Close SaveChanges:=False
+    End If
+End Sub
