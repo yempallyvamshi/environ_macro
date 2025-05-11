@@ -1,0 +1,11 @@
+Sub ReportingPage()
+    Dim pwd As String
+    pwd = InputBox("Enter password to unhide the sheet:", "Admin Access")
+    
+    If pwd = "@mahmis@" Then
+        Sheets("Reporting Check").Visible = xlSheetVisible
+        MsgBox "Reporing Sheet is now visible.", vbInformation
+    Else
+        MsgBox "Incorrect password.", vbExclamation
+    End If
+End Sub
