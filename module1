@@ -1,0 +1,11 @@
+Sub AdminPage()
+    Dim pwd As String
+    pwd = InputBox("Enter password to unhide the sheet:", "Admin Access")
+    
+    If pwd = "@mahmis@" Then
+        Sheets("Sheet1").Visible = xlSheetVisible
+        MsgBox "Your role has changed to Admin. Main Data is now visible.", vbInformation
+    Else
+        MsgBox "Incorrect password.", vbExclamation
+    End If
+End Sub
